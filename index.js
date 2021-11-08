@@ -1,103 +1,80 @@
+var tempData = [];
 var data = [];
 addFields();
 
 function addFields() {
-    daydis = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday",];
-    if (data.length <= 6) {
-        data.push({
-            day: daydis[data.length],
-            times: [
-                {
-                    id_from: Math.ceil(Math.random() * 50000),
-                    id_to: Math.ceil(Math.random() * 50000),
-                    from: "",
-                    to: ""
-                }
-            ]
-        });
-        showFields();
-    } else {
-        document.getElementById("addDay").className = "btn btn-secondary my-3 disabled";
-    }
+	tempData.push("");
+	showFields();
+	displayData();
 }
 
 function showFields() {
-    let text = "";
-    data.forEach(function (element, ind) {
-        text += `<tr>
-        <td> ${element.day} </td>
-        <td>
-            <table class="table table-borderless">`;
-        element.times.forEach(function (element1, index) {
-            text += `<tr>
-                    <td> From : <input type=\"text\" id=\"${element1.id_from}\" value=\"${element1.from}\"> </td>
-                    <td> To : <input type=\"text\" id=\"${element1.id_to}\" value=\"${element1.to}\""> </td> 
-                    <td>`; if (index == 0) {
-                text += "<button class=\"btn btn-secondary\"" + `onclick="addinput(${ind}, ${index})"> + </button> </td>` + "<td> <button class=\"btn btn-secondary\"" + `onclick="delday(${ind})"> Remove Day. </button> </td>`;
-            } else {
-                text += "<button class=\"btn btn-secondary\"" + `onclick="delinput(${ind}, ${index})"> - </button> </td>`;
-            }
-            text += `</tr>`;
-        });
-        text += `</table>
-        </td>
-    	</tr>`;
-    });
-    document.getElementById("show").innerHTML = text;
-    addData();
+	text = "";
+	tempData.forEach(function (element, index) {
+		text += `<tr>
+                <td>
+                    <div class="input-group flex-nowrap">
+                        <span class="input-group-text" id="addon-wrapping">Enter Something : </span>
+                        <input type="text" id=\"${index}\" value=\"${element}\" class="form-control" aria-describedby="addon-wrapping">
+                    </div>
+                </td>
+                <td>`; if (index == 0) {
+			text += "<button class=\"btn btn-dark\"" + `onclick="addFields()">Add.</button>`;
+		} else {
+			text += "<button class=\"btn btn-dark\"" + `onclick="delField(${index})">Remove.</button>`;
+		}
+		text += `</td>
+            </tr>`;
+	});
+	gblindex == null ? text += '<button class=\"btn btn-dark m-3\" onclick=\"addData()\"> Submit. </button>' : text += '<button class=\"btn btn-dark m-3\" onclick=\"addData()\"> Update. </button>';
+	document.getElementById("display").innerHTML = text;
 }
 
-function addinput(ind) {
-    var times = data[ind].times;
-    times.push({ id_from: Math.ceil(Math.random() * 50000), id_to: Math.ceil(Math.random() * 50000), from: "", to: "" });
-    showFields();
-}
-
-function delinput(ind, index) {
-    var times = data[ind].times;
-    times.splice(index, 1);
-    showFields();
-    showData();
-}
-
-function delday(ind) {
-    data.splice(ind, 1);
-    showFields();
-    showData();
+function delField(index) {
+	tempData.splice(index, 1);
+	showFields();
 }
 
 function addData() {
-    data.forEach(function (element, index) {
-        times = data[index].times;
-        element.times.forEach(function (element1) {
-            document.getElementById(element1.id_from).onkeyup = function () {
-                element1.from = this.value;
-                showData();
-            }
-            document.getElementById(element1.id_to).onkeyup = function () {
-                element1.to = this.value;
-                showData();
-            }
-        });
-    });
+	let txt = "";
+	tempData.forEach(function (element, index) {
+		txt = document.getElementById(index).value;
+		tempData[index] = txt;
+	});
+	var finalData = tempData.join("-");
+	gblindex == null ? data.push(finalData) : data[gblindex] = finalData; gblindex = null;
+	tempData = [];
+	addFields();
 }
 
-function showData() {
-    let text = "";
-    data.forEach(function (element) {
-        text += `<tr>
-        <td> ${element.day} </td>
-        <td>
-            <table class="table table-borderless">`;
-        element.times.forEach(function (element1) {
-            text += `<tr>
-                    <td> From : ${element1.from} </td>
-                    <td> To : ${element1.to}</td>
-                    </tr>`;
-        });
-        text += `</table>
-        </td>
-    	</tr>`;
-    });
-    document.getElementById("showData").innerHTML = text;
+function displayData() {
+	let text = "";
+	data.length == 0 ? text += "<h5 class=\"display-5\">No Entries.</h5>" : text += `<h5 class="display-5">Entries.</h5>`;
+	`<tr> 
+		<th> Sr. No. </th>
+		<th> Enteries. </th>
+		<th> Update. </th>
+		<th> Delete. </th>
+	</tr>`;
+	data.forEach(function (element, index) {
+		text += `<tr>
+		<td> ${index + 1} </td>
+		<td> ${element} </td>
+		<td> <button class="btn btn-dark" onclick="updData(${index})"> <i class="fas fa-edit"></i> </button> </td>
+		<td> <button class="btn btn-dark" onclick="delData(${index})"> <i class="fas fa-trash"></i> </button> </td>`;
+	});
+	document.getElementById("displayData").innerHTML = text;
+}
+
+function delData(index) {
+	data.splice(index, 1);
+	displayData();
+}
+
+var gblindex = null;
+function updData(index) {
+	var a = data[index];
+	tempData = a.split("-");
+	gblindex = index;
+	showFields();
 }
